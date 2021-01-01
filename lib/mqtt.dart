@@ -9,7 +9,7 @@ class MQTTClass {
   bool _alreadysubscribed = false;
   String _previousTopic = "";
 
-  var dataController = StreamController<String>();
+  var dataController = StreamController<Map<String, dynamic>>();
   // Subscribe to topic
   Future<bool> subscribe(String topic) async {
     try {
@@ -55,8 +55,8 @@ class MQTTClass {
           final MqttPublishMessage payLoad = event[0].payload;
           String data =
               MqttPublishPayload.bytesToStringAsString(payLoad.payload.message);
-          // Map<String, dynamic> dataPayload = json.decode(data);
-          dataController.add(data);
+          Map<String, dynamic> dataPayload = json.decode(data);
+          dataController.add(dataPayload);
           return data;
         });
       });

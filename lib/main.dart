@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_messenger/mqtt.dart';
 
@@ -42,16 +40,14 @@ class _MyHomePageState extends State<MyHomePage> {
     _messageController = TextEditingController();
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   // _mqttClass.login();
-  //   super.didChangeDependencies();
-  // }
-
   @override
   void dispose() {
     _mqttClass.dispose();
     super.dispose();
+  }
+
+  void add(data) {
+    _messages.add(data);
   }
 
   @override
@@ -104,32 +100,32 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text('Send Message'),
               ),
               SizedBox(height: 20),
-              StreamBuilder<String>(
+              StreamBuilder<Map<String, dynamic>>(
                 stream: _mqttClass.dataController.stream,
                 builder: (context, snapshot) {
-                  _messages.add(json.decode(snapshot.data));
+                  if (snapshot.hasData) {
+                    add(snapshot.data);
+                  }
                   return Container(
                     height: 150,
-                    child: _messages.length != 0
-                        ? ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: _messages.length,
-                            itemBuilder: (context, index) {
-                              return Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(_messages.reversed
-                                        .toList()[index]['message']),
-                                  ),
-                                  Expanded(
-                                    child: Text(_messages.reversed
-                                        .toList()[index]['time_sent']),
-                                  ),
-                                ],
-                              );
-                            },
-                          )
-                        : Container(),
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: _messages.map(
+                        (e) {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: Text(e['message']),
+                              ),
+                              Expanded(
+                                child: Text(e['time_sent']),
+                              ),
+                            ],
+                          );
+                        },
+                      ).toList(),
+                      // return
+                    ),
                   );
                 },
               ),
